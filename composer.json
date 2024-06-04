@@ -11,5 +11,7 @@
             "name": "LabiciIvan"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    }
 }
