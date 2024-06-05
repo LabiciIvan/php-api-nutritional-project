@@ -3,7 +3,7 @@
     "description": "This is a nutritional project",
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "./App"
         }
     },
     "authors": [
