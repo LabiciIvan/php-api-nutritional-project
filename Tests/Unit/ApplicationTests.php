@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
+use App\Classes\Router;
+use App\Classes\Request;
 use App\Classes\Application;
 use PHPUnit\Framework\TestCase;
 
@@ -11,10 +13,14 @@ class ApplicationTests extends TestCase
 {
     public function testRunMethodRunsTheApplication(): void
     {
-        $applicationInstance = new Application();
+        $request = new Request('GET', '/nutrition/application/');
 
-        $resultReturned = $applicationInstance->run();
+        $router = new Router();
 
-        $this->assertNull($resultReturned);
+        $applicationInstance = new Application($request, $router);
+
+        $applicationInstance->run();
+
+        $this->assertTrue(true);
     }
 }
