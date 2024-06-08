@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Classes;
 
 use App\Interfaces\ApplicationInterface;
+use App\Utilities\Response;
 
 class Application implements ApplicationInterface
 {
@@ -28,15 +29,11 @@ class Application implements ApplicationInterface
         $routes = $this->router->getRoutes();
 
         if (!$method || !$endpoint) {
-            http_response_code(500);
-            echo 'System is slowed down, try again later.';
-            exit;
+            Response::sendResponse('System is slowed down, try again later.', 500);
         }
 
         if (!isset($routes[$method][$endpoint])) {
-            http_response_code(404);
-            echo 'Request resource not found.';
-            exit;
+            Response::sendResponse('Request resource not found.', 404);
         }
 
         $callbackOrArray = $routes[$method][$endpoint];
