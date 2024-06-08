@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Classes;
 
-use App\Interfaces\ApplicationInterface;
+use App\Utilities\Json;
 use App\Utilities\Response;
+use App\Interfaces\ApplicationInterface;
 
 class Application implements ApplicationInterface
 {
@@ -29,11 +30,11 @@ class Application implements ApplicationInterface
         $routes = $this->router->getRoutes();
 
         if (!$method || !$endpoint) {
-            Response::sendResponse('System is slowed down, try again later.', 500);
+            Response::sendResponse(Json::toJson(['data' => 'System is slowed down, try again later.']), 500);
         }
 
         if (!isset($routes[$method][$endpoint])) {
-            Response::sendResponse('Request resource not found.', 404);
+            Response::sendResponse(Json::toJson(['data' => 'Request resource not found.']), 404);
         }
 
         $callbackOrArray = $routes[$method][$endpoint];
