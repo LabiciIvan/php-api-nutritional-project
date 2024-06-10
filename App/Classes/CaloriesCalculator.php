@@ -13,7 +13,7 @@ class CaloriesCalculator
     public function calculateTotalCalories(int $weight, string $activity): int
     {
         if (!isset($this->activityLevel[$activity])) {
-            throw new RuntimeException('Undefined activity level by which to calculate calories intake');
+            throw new RuntimeException('Undefined activity level by which to calculate calories intake.');
         }
 
         $lbsWeight = intval($weight * 2.2);
@@ -44,12 +44,16 @@ class CaloriesCalculator
         $gramsCarbohydrates = $kcalCarbohydrates / 4;
 
         return [
-            'kcalFats' => $kcalFats,
-            'gramsFats' => $gramsFats,
-            'kcalProtein' => $kcalProtein,
-            'gramsProtein' => $gramsProtein,
-            'kcalCarbohydrates' => $kcalCarbohydrates,
-            'gramsCarbohydrates' => $gramsCarbohydrates
+            'kcal' => [
+                'Fats' => $kcalFats,
+                'Protein' => $kcalProtein,
+                'Carbohydrates' => $kcalCarbohydrates,
+            ],
+            'grams' => [
+                'Fats' => $gramsFats,
+                'Protein' => $gramsProtein,
+                'Carbohydrates' => $gramsCarbohydrates
+            ]
         ];
     }
 }
