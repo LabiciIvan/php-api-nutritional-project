@@ -14,10 +14,6 @@ $request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 
 $router = new Router();
 
-$router->get('/', function () {
-    echo 'This is root route';
-});
-
 $router->post('/calculate/calories/', function () use($request) {
     $requestData = $request->getRequestData();
 
@@ -74,16 +70,24 @@ $router->post('/calculate/macronutrients/', function () use($request) {
 
     $kclCalculator = new CaloriesCalculator();
 
-    $macroDistribution = $kclCalculator->calculateMacroDistribution(
-        $requestData['calories'],
-        $requestData['protein'],
-        $requestData['carbohydrates'],
-        $requestData['fats'],
-    );
+    try {
+        $macroDistribution = $kclCalculator->calculateMacroDistribution(
+            $requestData['calories'],
+            $requestData['protein'],
+            $requestData['carbohydrates'],
+            $requestData['fats'],
+        );
+    } catch (Exception $e) {
+        Response::sendResponse(Json::toJson(['data' => $e->getMessage()]), 400);
+    }
 
-    Response::sendResponse(Json::toJson($macroDistribution), 200);
+    Response::sendResponse(Json::toJson(['data' => $macroDistribution]), 200);
 });
 
 $app = new Application($request, $router);
 
-$app->run();
+try {
+    $app->run();
+} catch (Exception $e) {
+    exit;
+}
