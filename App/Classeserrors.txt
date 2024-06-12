@@ -1,0 +1,2 @@
+[2024-06-12 09:14:35] - Call to undefined method App\Utilities\Response::missingMethod()
+[2024-06-12 09:15:10] - Call to undefined method App\Utilities\Response::missingMethod()
