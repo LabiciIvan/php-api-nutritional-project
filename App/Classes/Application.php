@@ -9,6 +9,7 @@ use RuntimeException;
 use App\Utilities\Json;
 use App\Utilities\Response;
 use App\Interfaces\ApplicationInterface;
+use App\Utilities\ErrorLogger;
 
 class Application implements ApplicationInterface
 {
@@ -56,7 +57,8 @@ class Application implements ApplicationInterface
                 try {
                     $classInstance->$method();
                 } catch (Error $e) {
-                    exit;
+                    ErrorLogger::logError($e->getMessage(), __DIR__ . '/../../errors.txt');
+                    Response::sendResponse(Json::toJson(['data' => 'The system is currently experiencing a malfunction. Please try again later.']), 500);
                 }
 
             } else {

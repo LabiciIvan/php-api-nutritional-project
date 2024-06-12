@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Utilities;
 
-use App\Interfaces\JsonInterface;
 use JsonException;
+use App\Interfaces\JsonInterface;
 
 class Json implements JsonInterface
 {
@@ -14,6 +14,7 @@ class Json implements JsonInterface
         try {
             $jsonEncoded = json_encode($data, JSON_THROW_ON_ERROR, 512);
         } catch (JsonException $e) {
+            ErrorLogger::logError($e->getMessage(), __DIR__ . '/../../errors.txt');
             return null;
         }
 
@@ -25,6 +26,7 @@ class Json implements JsonInterface
         try {
             $jsonDecoded = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
+            ErrorLogger::logError($e->getMessage(), __DIR__ . '/../../errors.txt');
             return null;
         }
 
