@@ -1,0 +1,7 @@
+my_setting.ini:
+[database]
+driver = mysql
+host = localhost
+schema = database_name
+username = root
+password = root
