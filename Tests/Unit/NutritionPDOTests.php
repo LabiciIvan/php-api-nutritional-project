@@ -12,7 +12,7 @@ class NutritionPDOTests extends TestCase
 
     public function setUp(): void
     {
-        $this->db = new NutritionPDO();
+        $this->db = NutritionPDO::getInstance();
     }
 
     public function testConnectionToDatabase(): void
