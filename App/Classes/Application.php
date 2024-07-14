@@ -8,8 +8,9 @@ use Error;
 use RuntimeException;
 use App\Utilities\Json;
 use App\Utilities\Response;
-use App\Interfaces\ApplicationInterface;
 use App\Utilities\ErrorLogger;
+use App\Utilities\DependencyInjector;
+use App\Interfaces\ApplicationInterface;
 
 class Application implements ApplicationInterface
 {
@@ -53,6 +54,18 @@ class Application implements ApplicationInterface
             if ($class && $method && class_exists($class)) {
 
                 $classInstance = new $class();
+
+                $dependencyInjector = new DependencyInjector($class, $method);
+
+                $dependencies = $dependencyInjector->hasDependencies();
+
+                if ($dependencies) {
+                    $instances = array_map(function($class) {
+                        return new $class();
+                    }, $dependencies);
+
+                    $classInstance->$method(...$instances);
+                }
 
                 try {
                     $classInstance->$method();
