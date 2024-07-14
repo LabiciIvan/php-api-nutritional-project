@@ -13,10 +13,8 @@ use App\Classes\CaloriesCalculator;
 
 class MacronutrientsController
 {
-    public function calculateCalories(): void
+    public function calculateCalories(Request $request): void
     {
-        $request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-
         $requestData = $request->getRequestData();
 
         $requestData = Json::fromJson($requestData);
@@ -46,10 +44,8 @@ class MacronutrientsController
         Response::sendResponse(Json::toJson(['data' => ['kcal' => $totalCalories]]), 200);
     }
 
-    public function calculateMacronutrients(): void
+    public function calculateMacronutrients(Request $request): void
     {
-        $request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-
         $requestData = $request->getRequestData();
 
         $requestData = Json::fromJson($requestData);

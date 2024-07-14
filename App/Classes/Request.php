@@ -16,8 +16,13 @@ class Request implements RequestInterface
 
     private ?string $data = null;
 
-    public function __construct(string $requestMethod, string $requestURL)
+    public function __construct(string $requestMethod = null, string $requestURL = null)
     {
+        if (!$requestMethod || !$requestURL) {
+            $requestMethod = $_SERVER['REQUEST_METHOD'];
+            $requestURL = $_SERVER['REQUEST_URI'];
+        }
+
         $this->processServerData($requestMethod, $requestURL);
     }
 
