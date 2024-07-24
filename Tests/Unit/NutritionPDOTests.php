@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use PDO;
 use App\Database\NutritionPDO;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class NutritionPDOTests extends TestCase
@@ -29,5 +30,14 @@ class NutritionPDOTests extends TestCase
         $queryResult = $pdoStatement->fetch();
 
         $this->assertIsArray($queryResult);
+    }
+
+    public function testQuickFetch(): void
+    {
+        $result = $this->db->quickFetch("SELECT * FROM users");
+
+        $this->assertNotNull($result);
+
+        $this->assertIsArray($result);
     }
 }
