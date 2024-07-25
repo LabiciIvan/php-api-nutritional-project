@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Database;
 
 use PDO;
+use PDOException;
 use RuntimeException;
+use App\Utilities\ErrorLogger;
 
 class NutritionPDO extends PDO
 {
-    private static $db = null;
+    private static ?NutritionPDO $db = null;
 
     private function __construct($file = 'settings.ini')
     {
@@ -22,7 +24,7 @@ class NutritionPDO extends PDO
         parent::__construct($dsn, $settings['database']['username'], $settings['database']['password']);
     }
 
-    public static function getInstance(): PDO
+    public static function getInstance(): NutritionPDO
     {
         if (!NutritionPDO::$db) {
             NutritionPDO::$db = new NutritionPDO();
@@ -30,4 +32,68 @@ class NutritionPDO extends PDO
 
         return NutritionPDO::$db;
     }
+
+    /**
+     * Execute SELECT queries.
+     *
+     * Created to ease the usage of the SELECT queries.
+     *
+     * Can result in unusual behaviour when used to INSERT,
+     * UPDATE or DELETE queries.
+     *
+     * @throws    PDOException  Exception fetching any data
+     *
+     * @return    null|array    null if no data fetched or array with fetched data
+     */
+    public function quickFetch(string $query): ?array
+    {
+        try {
+            $fetchedPDO = self::$db->query($query);
+        } catch (PDOException $e) {
+            ErrorLogger::logError($e->getMessage(), __DIR__ .  '/../../errors.txt');
+            return null;
+        }
+
+        if (!isset($fetchedPDO) || $fetchedPDO === false) {
+            ErrorLogger::logError('Issue fetching data from the database in: ' .__METHOD__. ' on line: '. __LINE__, __DIR__ .  '/../../errors.txt');
+            return null;
+        }
+
+        $fetchedData = [];
+
+        // Stack into an array data fetched
+        foreach ($fetchedPDO as $row) {
+            $fetchedData[] = $row;
+        }
+
+        return (!empty($fetchedData) ? $fetchedData : null);
+    }
+
+    /**
+     * Execute INSERT, UPDATED, PUT, DELETE queries.
+     *
+     * Used to execute queries which don't return a result set.
+     *
+     * Using it to SELECT queries might return unexpected results.
+     *
+     * @return    bool|null          true if executed successfully null otherwise
+     */
+    public function runQuery(string $query, array $args = null)
+    {
+        try {
+            $statementPDO = static::$db->prepare($query);
+
+            $result = $statementPDO->execute((isset($args) ? $args : null));
+        } catch (PDOException $e) {
+            ErrorLogger::logError($e->getMessage() .' in method ' .__METHOD__ .' on line '. __LINE__, __DIR__ . '/../../errors.txt');
+            return null;
+        }
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $result;
+    }
+
 }
