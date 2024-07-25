@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use PDO;
 use App\Database\NutritionPDO;
-use Exception;
 use PHPUnit\Framework\TestCase;
 
 class NutritionPDOTests extends TestCase
@@ -39,5 +38,17 @@ class NutritionPDOTests extends TestCase
         $this->assertNotNull($result);
 
         $this->assertIsArray($result);
+    }
+
+    public function testRunQuery(): void
+    {
+        $valuesToInsert = ['Binary', 'Hexa', uniqid('dummyEmail'), 'man'];
+
+        $result = $this->db->runQuery(
+            "INSERT INTO users (first_name, last_name, email, gender) VALUE (?, ?, ?, ?)",
+            $valuesToInsert
+        );
+
+        $this->assertTrue($result);
     }
 }

@@ -69,4 +69,31 @@ class NutritionPDO extends PDO
         return (!empty($fetchedData) ? $fetchedData : null);
     }
 
+    /**
+     * Execute INSERT, UPDATED, PUT, DELETE queries.
+     *
+     * Used to execute queries which don't return a result set.
+     *
+     * Using it to SELECT queries might return unexpected results.
+     *
+     * @return    bool|null          true if executed successfully null otherwise
+     */
+    public function runQuery(string $query, array $args = null)
+    {
+        try {
+            $statementPDO = static::$db->prepare($query);
+
+            $result = $statementPDO->execute((isset($args) ? $args : null));
+        } catch (PDOException $e) {
+            ErrorLogger::logError($e->getMessage() .' in method ' .__METHOD__ .' on line '. __LINE__, __DIR__ . '/../../errors.txt');
+            return null;
+        }
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $result;
+    }
+
 }
