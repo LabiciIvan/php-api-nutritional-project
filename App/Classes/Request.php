@@ -14,19 +14,21 @@ class Request implements RequestInterface
 
     private ?array $parameters = null;
 
+    private ?string $bearderToken = null;
+
     private ?string $data = null;
 
-    public function __construct(string $requestMethod = null, string $requestURL = null)
+    public function __construct(string $requestMethod = null, string $requestURL = null, string $authorizationHeader = null)
     {
         if (!$requestMethod || !$requestURL) {
             $requestMethod = $_SERVER['REQUEST_METHOD'];
             $requestURL = $_SERVER['REQUEST_URI'];
         }
 
-        $this->processServerData($requestMethod, $requestURL);
+        $this->processServerData($requestMethod, $requestURL, $authorizationHeader);
     }
 
-    private function processServerData(string $rawRequestMethod, string $rawRequestURL): void
+    private function processServerData(string $rawRequestMethod, string $rawRequestURL, string $authorizationHeader = null): void
     {
         // process the request method.
         $this->method = $rawRequestMethod;
@@ -44,6 +46,16 @@ class Request implements RequestInterface
         $requestInput = file_get_contents('php://input');
 
         $this->data = !empty($requestInput) ? $requestInput : null;
+
+        // Process the Authorization Header if available
+        if (isset($authorizationHeader)) {
+            $authorizationHeader = trim($authorizationHeader);
+
+            // Match the Bearer Token from Headers
+            if (preg_match('/^Bearer\s(\S+)$/', $authorizationHeader, $matches)) {
+                $this->bearderToken = $matches[1];
+            }
+        }
     }
 
     public function getEndpoint(): ?string
@@ -64,5 +76,10 @@ class Request implements RequestInterface
     public function getParameters(): ?array
     {
         return $this->parameters;
+    }
+
+    public function getBearerToken(): ?string
+    {
+        return $this->bearderToken;
     }
 }
