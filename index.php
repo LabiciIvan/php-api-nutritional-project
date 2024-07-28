@@ -1,31 +1,28 @@
 <?php
 
-use App\Classes\Router;
-use App\Classes\Request;
-use App\Classes\Application;
-
+use App\Classes\Kernel;
 use App\Utilities\Json;
 use App\Utilities\Response;
+use App\Classes\Application;
 use App\Utilities\ErrorLogger;
-use App\Controllers\MacronutrientsController;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+// Load all routes and $router instance
+require __DIR__ . '/App/routes.php';
 
-$router = new Router();
+// Load global $_SERVER and $request instance
+require __DIR__ . '/App/request.php';
 
-$router->get('/', [Response::class, 'missingMethod']);
-
-$router->post('/calculate/calories/', [MacronutrientsController::class, 'calculateCalories']);
-
-$router->post('/calculate/macronutrients/', [MacronutrientsController::class, 'calculateMacronutrients']);
-
-$app = new Application($request, $router);
+// Initialise Application by passing Kernel and all necessary dependecies
+$app = new Application(new Kernel($request, $router));
 
 try {
     $app->run();
 } catch (Exception $e) {
     ErrorLogger::logError($e->getMessage(), __DIR__ . '/errors.txt');
-    Response::sendResponse(Json::toJson(['data' => 'The system is currently experiencing a malfunction. Please try again later.']), 500);
+    Response::sendResponse(
+        Json::toJson(['data' => 'The system is currently experiencing a malfunction. Please try again later.']),
+        500
+    );
 }

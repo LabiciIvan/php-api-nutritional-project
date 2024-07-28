@@ -6,6 +6,7 @@ namespace App\Classes;
 
 use Error;
 use RuntimeException;
+use App\Classes\Kernel;
 use App\Utilities\Json;
 use App\Utilities\Response;
 use App\Utilities\ErrorLogger;
@@ -14,24 +15,20 @@ use App\Interfaces\ApplicationInterface;
 
 class Application implements ApplicationInterface
 {
-    private Request $request;
+    private Kernel $kernel;
 
-    private Router $router;
-
-    public function __construct(Request $request, Router $router)
+    public function __construct(Kernel $kernel)
     {
-        $this->request = $request;
-
-        $this->router = $router;
+        $this->kernel = $kernel;
     }
 
     public function run(): void
     {
-        $endpoint = $this->request->getEndpoint();
+        $endpoint = $this->kernel->request->getEndpoint();
 
-        $method = $this->request->getMethod();
+        $method = $this->kernel->request->getMethod();
 
-        $routes = $this->router->getRoutes();
+        $routes = $this->kernel->router->getRoutes();
 
         if (!$method || !$endpoint) {
             Response::sendResponse(Json::toJson(['data' => 'System is slowed down, try again later.']), 500);
