@@ -12,6 +12,10 @@ class AuthenticationTests extends TestCase
 {
     private Authentication $auth;
 
+    private ?string $testUserEmail2 = null;
+
+    private ?int $userId2 = null;
+
     private static ?string $testUserEmail = null;
 
     private static ?int $userId = null;
@@ -21,6 +25,8 @@ class AuthenticationTests extends TestCase
         if (static::$testUserEmail === null) {
             static::$testUserEmail = uniqid('dummy@mail');
         }
+
+        $this->testUserEmail2 = uniqid('dummy@mail');
 
         $this->auth = new Authentication(NutritionPDO::getInstance());
     }
@@ -79,5 +85,45 @@ class AuthenticationTests extends TestCase
         $isLoggedOut = $this->auth->logout((int)static::$userId);
 
         $this->assertTrue($isLoggedOut);
+    }
+
+    public function testRegistrationAndLoggin(): void
+    {
+        // Register a dummy user into the database.
+        $registerData = ['testFirstName', 'testLastName', $this->testUserEmail2, 'woman'];
+
+        $isRegistered = $this->auth->register($registerData);
+
+        $this->assertTrue($isRegistered);
+
+        // Check if user exists to be able to get the user ID.
+        $userExists = $this->auth->userExists($this->testUserEmail2);
+
+        $this->assertTrue($userExists);
+
+        // Get user ID
+        $userID = $this->auth->getUserID();
+
+        $this->assertIsInt($userID);
+        
+        // Login user
+        $isLogged = $this->auth->login($userID);
+
+        $this->assertTrue($isLogged);
+    }
+
+    public function testLastInsertedUserID(): void
+    {
+        // Register a dummy user into the database.
+        $registerData = ['testFirstName', 'testLastName', $this->testUserEmail2, 'woman'];
+
+        $registrationSucceeded = $this->auth->register($registerData);
+
+        $this->assertTrue($registrationSucceeded);
+
+        // Get the lastID and check if is int.
+        $lastID = $this->auth->getLastID();
+
+        $this->assertIsInt($lastID);
     }
 }

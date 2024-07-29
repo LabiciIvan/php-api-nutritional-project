@@ -12,19 +12,27 @@ class Authentication
     /**
      * Database connection class.
      */
-    private    NutritionPDO    $db;
+    private NutritionPDO $db;
 
     /**
      * User table columns and specific insert order.
      */
-    private    array           $userTableColumns = [
+    private array $userTableColumns = [
         'first_name',
         'last_name',
         'email',
         'gender'
     ];
 
-    private   ?int             $userID = null;
+    /**
+     * User ID stored by userExists() method.
+     */
+    private ?int $userID = null;
+
+    /**
+     * Last Inserted user ID.
+     */
+    private ?int $lastID = null;
 
     public function __construct(NutritionPDO $db)
     {
@@ -39,7 +47,12 @@ class Authentication
      */
     public function getUserID(): ?int
     {
-        return $this->userID;
+        return (int)$this->userID;
+    }
+
+    public function getLastID(): ?int
+    {
+        return ( isset($this->lastID) ? (int)$this->lastID : null);
     }
 
     /**
@@ -57,6 +70,9 @@ class Authentication
             $insertQuery,
             $data
         );
+
+        // Store lastID if registration succeeded.
+        $this->lastID = ($isInserted === true ? (int)$this->db->lastInsertId() : null);
 
         return $isInserted === true;
     }
@@ -91,12 +107,10 @@ class Authentication
 
     /**
      * Is logged in.
-     * 
+     *
      * Check if user is logged in the database by fetching
      * the id column of the records from login table where
      * the deleted column is 'N'.
-     * 
-     * @return  
      */
     public function isLoggedIn(int $userId) {
         $queryString = <<<EOD
@@ -139,6 +153,12 @@ class Authentication
         return $isLoggedIn === true;
     }
 
+    /**
+     * Logs out user.
+     * 
+     * An user is logged out by marking the deleted column
+     * to 'Y' based on the received $userID parameter.
+     */
     public function logout(int $userID): bool
     {
         $insertQuery = <<<EOS
