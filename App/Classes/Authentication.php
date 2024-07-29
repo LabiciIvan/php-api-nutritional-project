@@ -52,7 +52,7 @@ class Authentication
 
     public function getLastID(): ?int
     {
-        return ( isset($this->lastID) ? (int)$this->lastID : null);
+        return (isset($this->lastID) ? (int)$this->lastID : null);
     }
 
     /**
