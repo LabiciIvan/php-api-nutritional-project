@@ -22,7 +22,7 @@ class AuthMiddleware
         $db = NutritionPDO::getInstance();
 
         $queryString = <<<EOS
-            SELECT user_id AS userID FROM login WHERE token = '$bearerToken';
+            SELECT user_id AS userID FROM login WHERE token = '$bearerToken' AND expire_at > CURDATE();
         EOS;
 
         $result = $db->quickFetch($queryString);
