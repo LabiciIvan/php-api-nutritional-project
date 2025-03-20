@@ -6,6 +6,8 @@ namespace App\Classes;
 
 use Error;
 use App\Utilities\ErrorLogger;
+use App\Middlewares\AuthMiddleware;
+use App\Utilities\DependencyInjector;
 
 /**
  * Base class for middlewares.
@@ -22,7 +24,9 @@ class BaseMiddleware
     /**
      * Middlewares available in the application.
      */
-    private    array    $registeredMiddlewares = [];
+    private    array    $registeredMiddlewares = [
+        'isUserLogged' => [AuthMiddleware::class, 'isUserLogged'],    // Checks if user is logged
+    ];
 
     public function __construct(array $middlewares)
     {
@@ -42,8 +46,31 @@ class BaseMiddleware
                 if (isset($class, $method) && class_exists($class)) {
                     $classInstance = new $class();
 
+                    // Discover any dependencies for the given method
+                    $dependencyInjector = new DependencyInjector($class, $method);
+
+                    $dependencies = $dependencyInjector->hasDependencies();
+
+                    // Iterate over all dependencies for the given method and create instances
+                    if ($dependencies) {
+                        $instances = array_map(function($class) {
+                            // If instance is Request::class then get it from the request.php directory
+                            if ($class === Request::class) {
+                                require __DIR__ . '/../request.php';
+                                return $request;
+                            }
+                            return new $class;
+                        }, $dependencies);
+                    }
+
                     try {
-                        $classInstance->$method();
+                        // Call method and spread all dependency instances
+                        if (isset($instances)) {
+                            $classInstance->$method(...$instances);
+                        } else {
+                            // Call method without any depenceny instance
+                            $classInstance->$method();
+                        }
                     } catch (Error $e) {
                         ErrorLogger::logError($e->getMessage(). ' in ' .__CLASS__. ' line: ' .__LINE__, __DIR__ . '/../../errors.txt');
                         continue;
